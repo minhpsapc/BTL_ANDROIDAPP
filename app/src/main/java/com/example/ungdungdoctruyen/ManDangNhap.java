@@ -22,6 +22,7 @@ public class ManDangNhap extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_dang_nhap);
+
         Anhxa();
         //Đối tượng databasedoctruyen
         databasedoctruyen = new databasedoctruyen(this);

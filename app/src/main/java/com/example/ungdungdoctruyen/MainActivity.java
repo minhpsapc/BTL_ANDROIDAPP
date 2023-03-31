@@ -10,16 +10,21 @@ import androidx.appcompat.widget.Toolbar;
 import android.app.ActionBar;
 import android.app.Notification;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ViewFlipper;
 
+import com.example.ungdungdoctruyen.adapter.adapterTruyen;
+import com.example.ungdungdoctruyen.database.databasedoctruyen;
+import com.example.ungdungdoctruyen.model.Truyen;
 import com.google.android.material.navigation.NavigationView;
 import com.squareup.picasso.Picasso;
 
@@ -33,14 +38,43 @@ public class MainActivity extends AppCompatActivity {
     ListView listView, listViewNew, listViewThongTin;
     DrawerLayout drawerLayout;
 
+    //b8_Listview truyện mới
+    String email;
+    String tentaikhoan;
 
+    ArrayList<Truyen> TruyenArraylist;
+
+    adapterTruyen adapterTruyen;
+
+    databasedoctruyen databasedoctruyen;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        databasedoctruyen = new databasedoctruyen(this);
+        //b8_Listview truyện mới //nhận dữ liệu ở màn đăng nhập gửi
+        Intent intentpq = getIntent();
+        int i = intentpq.getIntExtra("phanq", 0);
+        int idd = intentpq.getIntExtra("idd", 0);
+        email = intentpq.getStringExtra("email");
+        tentaikhoan = intentpq.getStringExtra("tentaikhoan");
         AnhXa();
         ActionBar();
         ActionViewFlipper();
+
+        listViewNew.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this,ManNoiDung.class);
+
+                String tent = TruyenArraylist.get(position).getTenTruyen();
+                String noidungt = TruyenArraylist.get(position).getNoiDung();
+                intent.putExtra("tentruyen",tent);
+                intent.putExtra("noidung",noidungt);
+                startActivity(intent);
+            }
+        });
 
     }
     //thanh actionbar với toolbar
@@ -97,13 +131,31 @@ private void ActionBar(){
     }
     //Phương thức ánh xạ
     private void AnhXa() {
-toolbar = findViewById(R.id.toolbarmanhinhchinh);
-viewFlipper = findViewById(R.id.viewflipper);
-listViewNew = findViewById(R.id.listviewNew);
-listView = findViewById(R.id.listviewmanhinhchinh);
-listViewThongTin=findViewById(R.id.listviewthongtin);
-navigationView = findViewById(R.id.navigationView);
-drawerLayout = findViewById(R.id.drawerlayout);
+        toolbar = findViewById(R.id.toolbarmanhinhchinh);
+        viewFlipper = findViewById(R.id.viewflipper);
+        listViewNew = findViewById(R.id.listviewNew);
+        listView = findViewById(R.id.listviewmanhinhchinh);
+        listViewThongTin=findViewById(R.id.listviewthongtin);
+        navigationView = findViewById(R.id.navigationView);
+        drawerLayout = findViewById(R.id.drawerlayout);
+        //b8
+        TruyenArraylist = new ArrayList<>();
+
+        Cursor cursor1 = databasedoctruyen.getDatal();
+        while(cursor1.moveToNext()){
+            int id = cursor1.getInt(0);
+            String tentruyen = cursor1.getString(1);
+            String noidung = cursor1.getString(2);
+            String anh = cursor1.getString(3);
+            int id_tk = cursor1.getInt(4);
+
+            TruyenArraylist.add(new Truyen(id,tentruyen,noidung,anh,id_tk));
+
+            adapterTruyen = new adapterTruyen(getApplicationContext(),TruyenArraylist);
+            listViewNew.setAdapter(adapterTruyen);
+        }
+        cursor1.moveToFirst();
+        cursor1.close();
     }
 //Nhập một menu tìm kiếm vào actionbar
     @Override

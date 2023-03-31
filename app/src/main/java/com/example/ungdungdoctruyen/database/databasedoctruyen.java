@@ -250,6 +250,13 @@ public class databasedoctruyen extends SQLiteOpenHelper {
         db.close();
         Log.e("ADD TK","TC");
 
-
     }
+    //b8_lấy 3 truyện mới nhất
+    public  Cursor getDatal(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("SELECT * FROM "+TABLE_TRUYEN+" ORDER BY "+ID_TRUYEN+" DESC LIMIT 3", null);
+        return res;
+    }
+
+
 }
